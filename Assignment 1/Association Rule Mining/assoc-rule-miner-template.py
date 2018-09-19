@@ -52,9 +52,18 @@ def scanSet(tranMap, ck, minSupport):
 		for can in ck:
 			if can.issubset(tid):
 				tranSupport[can] = tranSupport.get(can,0)+1
+
 	numTrans = float(len(tranMap))
+	retList = []
+	supportData = {}
+	for key in tranSupport:
+		support = tranSupport[key]/numTrans
+		if support >= minSupport:
+			retList.insert(0, key)
+		supportData[key] = support
 
-
+	# return frequent items set with the length of k, along with the corresponding support
+	return retList, supportData
 
 
 # To be implemented
@@ -73,6 +82,8 @@ def generate_frequent_itemset(transactions, minsup):
 
 	Create candidate set
 	'''
+
+	c1 = createC1(transactions)
 
 
 
