@@ -26,38 +26,35 @@ def createC1(transactions):
     :return: map of invariate constant set of one-lenght candidates
     '''
 
-    c1 = []
+    c1 =[]
     for transaction in transactions:
         for item in transaction:
-            if [item] not in c1:
+            if not [item] in c1:
                 c1.append([item])
     c1.sort()
-    return map(frozenset, c1)
+    return list(map(frozenset, c1))
 
 
 # Get k-length frequent set
 def scanSet(tranSet, ck, minSupport):
-    numTrans = 0
     tranSupport = {}
-    cklist = list(ck)
 
     # for each transaction
     for tid in tranSet:
-        numTrans+=1
         # for each candidate in ck
-        for can in cklist:
+        for can in ck:
             if can.issubset(tid):
-                tranSupport[can] = tranSupport.get(can, 0) + 1
-                # if not tranSupport.has_key(can):
-                #    tranSupport[can]=1
-                # else: tranSupport[can]+=1
+                if not can in tranSupport:
+                    tranSupport[can] = 1
+                else:
+                    tranSupport[can] += 1
 
-
+    numTrans = float(len(tranSet))
     retList = []
     supportData = {}
-
     for key in tranSupport:
         support = tranSupport[key] / numTrans
+        print(key, ":", support)
         if support >= minSupport:
             retList.insert(0, key)
             supportData[key] = support
@@ -71,6 +68,7 @@ def aprioriCan(Lk, k):
     '''
     retList = []
     lenLk = len(Lk)
+    # Generate k-length candiates from k-1-length frequent sets
     for i in range(lenLk):
         for j in range(i + 1, lenLk):
             L1 = list(Lk[i])[:k - 2]
@@ -78,6 +76,7 @@ def aprioriCan(Lk, k):
             L1.sort();
             L2.sort()
             if L1 == L2:
+                # union set i and j
                 retList.append(Lk[i] | Lk[j])
 
     return retList
@@ -101,8 +100,7 @@ def generate_frequent_itemset(transactions, minsup):
     '''
 
     c1 = createC1(transactions)
-    tranSet = map(set, transactions)
-    # print(len(list(tranSet)))
+    tranSet = list(map(set, transactions))
 
     L1, supportData = scanSet(tranSet, c1, minsup)  # get 1-length frequent set
     L = [L1]
@@ -120,7 +118,8 @@ def generate_frequent_itemset(transactions, minsup):
     return L, supportData
 
 if __name__ == "__main__":
-    dataset = [[1, 3, 4], [2, 3, 5], [1, 2, 3, 5], [2, 5]]
+    Dataset = read_csv("/Users/lynnjiang/liuGit/DataMining/Assignment 1/Association Rule Mining/Data/Groceries100.csv")
+
     C1 = createC1(dataset)
     D = map(set, dataset)
     L1, supportData = scanSet(D, C1, 0.5)
