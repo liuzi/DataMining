@@ -26,6 +26,7 @@ class HashTree:
         self.max_leaf_count = max_leaf_count
         self.max_child_count = max_child_count
         self.frequent_itemsets = []
+        self.hash_key_index = {}
 
     # function to recursive insertion to make hashtree
     def recursively_insert(self, node, itemset, index, count):
@@ -85,7 +86,9 @@ class HashTree:
 
         if node.Leaf_status:
             for key, value in node.bucket.items():
+                print(key, value)
                 if value >= minSup:  # if it satisfies the condition
+
                     frequent_itemsets.append(list(key))  # then add it to frequent itemsets.
                     Frequent_item_value[key] = value
             return Frequent_item_value
@@ -98,7 +101,9 @@ class HashTree:
 
     # hash function for making HashTree
     def hash_function(self, val):
-        return hash(val)
+        if val not in self.hash_key_index:
+            self.hash_key_index[val] = len(self.hash_key_index) + 1
+        return self.hash_key_index[val] % self.max_child_count
 
 def read_csv(filepath):
 	'''Read transactions from csv_file specified by filepath
@@ -288,7 +293,9 @@ def generate_frequent_itemset(transactions, minsup, max_leaf_count = 4, max_chil
             break
 
         k_subsets = generate_k_subsets(filtered_transactions, k)
+        print("k_subsets", k_subsets)
         for subset in k_subsets:
+            subset.sort()
             h_tree.add_support(subset)
         frequen_k_item = []
         # h_tree.get_frequent_itemsets(h_tree.root, minsup, frequen_k_item)
@@ -389,12 +396,12 @@ def main():
                 for e in items[1]:
                     output_str += e
                     output_str += ','
-                output_str = output_str[:-1] + "}, "+ str(items[2]) +"\n"
-                # output_str = output_str[:-1] + "}\n"
+                # output_str = output_str[:-1] + "}, "+ str(items[2]) +"\n"
+                output_str = output_str[:-1] + "}\n"
 
                 f.write(output_str)
 
 
 main()
 # python assoc-rule-miner-template.py Data/Groceries.csv 0.01
-# python assoc-rule-miner-template.py Data/Groceries.csv 0.01 0.2
+# python assoc-rule-miner-template.py Data/Groceries.csv 0.01 0.4
