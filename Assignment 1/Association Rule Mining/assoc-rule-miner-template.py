@@ -182,31 +182,6 @@ def generate_k_candidate(pre_frequent_set, k):
     return ck, final_ck
 
 
-#def generate_k_frequentset(ck, minsup, filtered_transactions):
-def generate_k_frequentset(ck, minSup, filtered_transactions, Frequent_item_value):
-
-    ck_support = {}
-    for tran in filtered_transactions:
-        for itemset in ck:
-            tran_set = set(tran)
-            itemset_set = set(itemset)
-
-            if itemset_set.issubset(tran_set):
-                if tuple(itemset) not in ck_support:
-                    ck_support[tuple(itemset)] = 1
-                else:
-                    ck_support[tuple(itemset)] += 1
-
-    frequent_itemset = []
-    for itemset in ck_support:
-        if ck_support[itemset] >= minSup:
-            frequent_itemset.append(sorted(list(itemset)))
-            Frequent_item_value[itemset] = ck_support[itemset]
-
-    return frequent_itemset, Frequent_item_value
-    #return frequent_itemset
-
-
 def generate_frequent_one_item(transactions, minSup):
     '''
     Generate frequent one itemset
@@ -279,18 +254,6 @@ def generate_frequent_itemset(transactions, minsup, max_leaf_count = 4, max_chil
         print("C%d" % (k))
         print(final_ck)
         h_tree = generate_hash_tree(ck, max_leaf_count, max_children_count)
-        if k>2 :
-            while (len(All_frequent_itemset[k-1]) > 0):
-                k_frequent_itemset, Frequent_item_value = generate_k_frequentset(final_ck, minSup, filtered_transactions, Frequent_item_value)
-                #k_frequent_itemset = generate_k_frequentset(final_ck, minsup, filtered_transactions)
-                All_frequent_itemset.append(k_frequent_itemset)
-                print("Frequent %d item" % k)
-                print(k_frequent_itemset)
-                k += 1
-                ck, final_ck = generate_k_candidate(All_frequent_itemset[k-1], k)
-                print("C%d" % k)
-                print(final_ck)
-            break
 
         k_subsets = generate_k_subsets(filtered_transactions, k)
         print("k_subsets", k_subsets)
