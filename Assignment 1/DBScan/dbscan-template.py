@@ -32,7 +32,7 @@ def read_data(filepath):
 
 def distance(x, y):
     dis = abs(x-y)
-    return round(math.sqrt((dis*dis.T).sum()), 3)
+    return round(math.sqrt((dis*dis.T).sum()), 10)
 
 
 def is_neighborhood(x, y, eps):
