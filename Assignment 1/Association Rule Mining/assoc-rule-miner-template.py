@@ -11,14 +11,6 @@ class Hash_node:
 
 
 # class of constructing and getting hashtree
-class Hash_node:
-    def __init__(self):
-        self.children = {}  # pointer to its children
-        self.Leaf_status = True  # to know the status whether current node is leaf or not
-        self.bucket = {}  # contains itemsets in bucket
-
-
-# class of constructing and getting hashtree
 class HashTree:
     # class constructor
     def __init__(self, max_leaf_count, max_child_count):
