@@ -32,6 +32,10 @@ class MyGradientBoostingRegressor():
         self.estimators = np.empty((self.n_estimators,), dtype=np.object)
         self.max_depth = max_depth
         self.min_samples_split = min_samples_split
+        self.min_y = 0
+
+    def get_mean(self, np_array):
+        return np.mean(np_array)
 
     def fit(self, X, y):
         '''
@@ -41,14 +45,31 @@ class MyGradientBoostingRegressor():
 
         You should update the self.estimators in this function
         '''
-        pass
+        # np.set_printoptions(precision=17)
+        constant = self.get_mean(y)
+        self.min_y = constant
+        dy = y - constant
+        # print(dy)
+
+        for i in range(self.n_estimators):
+            learner_k = MyDecisionTreeRegressor(self.max_depth,self.min_samples_split)
+            learner_k.fit(X,dy)
+
+            self.estimators[i] = learner_k
+            dy = dy - self.learning_rate * learner_k.predict(X)
+
+        return self.estimators
 
     def predict(self, X):
         '''
         :param X: Feature data, type: numpy array, shape: (N, num_feature)
         :return: y_pred: Predicted label, type: numpy array, shape: (N,)
         '''
-        pass
+
+        predicted_y = np.full((len(X),), self.min_y, dtype=float)
+        for i in range(self.n_estimators):
+            predicted_y = predicted_y + self.learning_rate * self.estimators[i].predict(X)
+        return predicted_y
 
     def get_model_string(self):
         model_dict = dict()
@@ -67,6 +88,7 @@ class MyGradientBoostingRegressor():
 
 # For test
 if __name__=='__main__':
+    # for i in range(1):
     for i in range(3):
         x_train = np.genfromtxt("Test_data" + os.sep + "x_" + str(i) +".csv", delimiter=",")
         y_train = np.genfromtxt("Test_data" + os.sep + "y_" + str(i) +".csv", delimiter=",")
@@ -76,13 +98,16 @@ if __name__=='__main__':
             gbr = MyGradientBoostingRegressor(n_estimators=n_estimators, max_depth=5, min_samples_split=2)
             gbr.fit(x_train, y_train)
             model_string = gbr.get_model_string()
+            # print(model_string)
 
             with open("Test_data" + os.sep + "gradient_boosting_" + str(i) + "_" + str(j) + ".json", 'r') as fp:
                 test_model_string = json.load(fp)
+            # print(test_model_string)
 
             print(operator.eq(model_string, test_model_string))
 
             y_pred = gbr.predict(x_train)
+            # print(y_pred)
 
             y_test_pred = np.genfromtxt("Test_data" + os.sep + "y_pred_gradient_boosting_"  + str(i) + "_" + str(j) + ".csv", delimiter=",")
             print(np.square(y_pred - y_test_pred).mean() <= 10**-10)

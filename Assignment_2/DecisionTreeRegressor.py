@@ -4,13 +4,6 @@ import json
 import operator
 
 
-# class Node:
-#     def __init__(self, feature_Index, value):
-#         self.left = None
-#         self.right = None
-#         self.feature_Index = feature_Index
-#         self.value = value
-
 class MyDecisionTreeRegressor():
     def __init__(self, max_depth=5, min_samples_split=1):
         '''
@@ -75,10 +68,6 @@ class MyDecisionTreeRegressor():
             for splitVal in set(remainData[:,feature_Index].T.A.tolist()[0]):
 
                 mat0, mat1 = self.binary_split(remainData, feature_Index, splitVal)
-                # if feature_Index == 2:
-                #     print("length: ",len(mat0),"\nerror:", self.get_error(mat0))
-                #     print("length: ",len(mat1),"\nerror:", self.get_error(mat1))
-                # if (np.shape(mat0)[0] < self.min_samples_split) or (np.shape(mat1)[0] < self.min_samples_split): continue
                 newS = self.get_error(mat0)+self.get_error(mat1)
                 if newS < bestS:
                     bestIndex = feature_Index
@@ -99,7 +88,6 @@ class MyDecisionTreeRegressor():
 
         feature_Index, value = self.chooseBestSplit(dataset)
 
-        # print("index: ",feature_Index,'\n Value: ', value)
         if feature_Index is None: return value
         node = {}
         node['splitting_variable'] = feature_Index
@@ -125,8 +113,6 @@ class MyDecisionTreeRegressor():
 
     def search_Tree(self, vector, current_root):
 
-        label = 0
-
         if self.isLeave(current_root):
             label = current_root
             return label
@@ -144,11 +130,17 @@ class MyDecisionTreeRegressor():
         :param X: Feature data, type: numpy array, shape: (N, num_feature)
         :return: y_pred: Predicted label, type: numpy array, shape: (N,)
         '''
-        predicted_y = []
-        for i in range(len(X)):
-            label = self.search_Tree(X[i,:].T.tolist(),self.root)
-            predicted_y.append(label)
-        return predicted_y
+        if self.isLeave(self.root):
+            print("Please fit the model before making prediction")
+            return None
+        else:
+            predicted_y = np.empty((len(X),), dtype=float)
+            # predicted_y = []
+            for i in range(len(X)):
+                label = self.search_Tree(X[i,:].T.tolist(),self.root)
+                # predicted_y.append(label)
+                predicted_y[i] = label
+            return predicted_y
 
 
     def get_model_string(self):
@@ -164,7 +156,6 @@ class MyDecisionTreeRegressor():
 # For test
 if __name__=='__main__':
     for i in range(3):
-    # for i in range (1):
         x_train = np.genfromtxt("Test_data" + os.sep + "x_" + str(i) +".csv", delimiter=",")
         y_train = np.genfromtxt("Test_data" + os.sep + "y_" + str(i) +".csv", delimiter=",")
 
@@ -178,10 +169,9 @@ if __name__=='__main__':
                 test_model_string = json.load(fp)
 
             print(operator.eq(model_string, test_model_string))
-            #
+
             y_pred = tree.predict(x_train)
-            # print(y_pred)
-            #
+
             y_test_pred = np.genfromtxt("Test_data" + os.sep + "y_pred_decision_tree_"  + str(i) + "_" + str(j) + ".csv", delimiter=",")
             print(np.square(y_pred - y_test_pred).mean() <= 10**-10)
 
